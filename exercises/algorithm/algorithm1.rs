@@ -2,11 +2,12 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
+
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
 use std::vec::*;
+use std::cmp::Ord;
 
 #[derive(Debug)]
 struct Node<T> {
@@ -29,13 +30,13 @@ struct LinkedList<T> {
     end: Option<NonNull<Node<T>>>,
 }
 
-impl<T> Default for LinkedList<T> {
+impl<T: Ord + Clone> Default for LinkedList<T> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T> LinkedList<T> {
+impl<T: Ord + Clone> LinkedList<T> {
     pub fn new() -> Self {
         Self {
             length: 0,
@@ -56,11 +57,11 @@ impl<T> LinkedList<T> {
         self.length += 1;
     }
 
-    pub fn get(&mut self, index: i32) -> Option<&T> {
+    pub fn get(& self, index: i32) -> Option<&T> {
         self.get_ith_node(self.start, index)
     }
 
-    fn get_ith_node(&mut self, node: Option<NonNull<Node<T>>>, index: i32) -> Option<&T> {
+    fn get_ith_node(& self, node: Option<NonNull<Node<T>>>, index: i32) -> Option<&T> {
         match node {
             None => None,
             Some(next_ptr) => match index {
@@ -72,11 +73,26 @@ impl<T> LinkedList<T> {
 	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
 	{
 		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+        let mut vec_sum = vec![];
+        for i in 0..list_a.length{
+            vec_sum.push(list_a.get(i as i32).unwrap().clone());
         }
+        for i in 0..list_b.length{
+            vec_sum.push(list_b.get(i as i32).unwrap().clone());
+        }
+        for i in 0..vec_sum.len(){
+            for j in 0..vec_sum.len()-1{
+                if vec_sum[j] > vec_sum[j+1]{
+                    vec_sum.swap(j,j+1);
+                }
+            }
+        }
+
+        let mut linklist = LinkedList::<T>::new();
+        for value in vec_sum.into_iter(){
+            linklist.add(value);
+        }
+        linklist
 	}
 }
 

@@ -2,7 +2,7 @@
 	heap
 	This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
+
 
 use std::cmp::Ord;
 use std::default::Default;
@@ -23,7 +23,7 @@ where
     pub fn new(comparator: fn(&T, &T) -> bool) -> Self {
         Self {
             count: 0,
-            items: vec![T::default()],
+            items: vec![T::default()],  //已经有一个默认值
             comparator,
         }
     }
@@ -38,6 +38,9 @@ where
 
     pub fn add(&mut self, value: T) {
         //TODO
+        self.count += 1;
+        self.items.push(value);
+        self.heapify_up();
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -58,8 +61,40 @@ where
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
         //TODO
-		0
+        let left = self.left_child_idx(idx);
+        let right = self.right_child_idx(idx);
+
+        if right <= self.count && (self.comparator)(&self.items[right], &self.items[left]) {
+            right
+        } else {
+            left
+        }		
     }
+
+    fn heapify_up(&mut self) {
+        let mut i = self.count;
+        while i > 1 {
+            let parent_idx = self.parent_idx(i);
+            if (self.comparator)(&self.items[i], &self.items[parent_idx]) {
+                self.items.swap(i, parent_idx);
+            } else {
+                break;
+            }
+            i = parent_idx;
+        }
+    }
+
+    fn heapify_down(&mut self) {
+        let mut i = 1;
+        while i<self.count/2 {
+            let smallest_child = self.smallest_child_idx(i);
+            if (self.comparator)(&self.items[smallest_child], &self.items[i]) {
+                self.items.swap(i, smallest_child);
+            }
+            i = smallest_child;
+        }
+    }
+
 }
 
 impl<T> Heap<T>
@@ -84,8 +119,16 @@ where
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
-        //TODO
-		None
+        if self.is_empty() {
+            None
+        } else {
+            let result = self.items.remove(1);
+            self.count -= 1;
+            if self.len()>1 {
+                self.heapify_up();
+            }
+            Some(result)
+        }
     }
 }
 
